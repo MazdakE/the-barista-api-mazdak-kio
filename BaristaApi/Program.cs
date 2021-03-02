@@ -1,24 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BaristaApi
+namespace The_barista
 {
     public class Program
     {
         public static void Main()
         {
-            IBeverage espresso = new FluentEspresso()
+            IFluentEspresso espresso = new FluentEspresso()
                 .AddHotWater(20)
                 .AddGrindedBeans()
                 .AddCoffeeBeans(new Beans(4, "Arabica"))
-                .AddMilk()
-                .ToBeverage();
+                .AddMilk();
 
-            IBeverage cappuccino = new FluentEspresso()
+            IFluentEspresso cappuccino = new FluentEspresso()
                 .AddCoffeeBeans(new Beans(4, "Arabica"))
                 .AddMilk()
-                .AddFoamMilk()
-                .ToBeverage();
+                .AddFoamMilk();
+
+            IBeverage americano = new Americano().ToBeverage();
+
 
             //foreach (var ingredient in espresso.Ingredients)
             //{
@@ -31,17 +32,23 @@ namespace BaristaApi
     {
         List<string> Ingredients { get; }
         string CupType { get; }
-        IBeverage AddHotWater(int percent);
-        IBeverage AddMilk();
-        IBeverage AddFoamMilk();
-        IBeverage AddCoffeeBeans(Beans beans);
-        IBeverage AddGrindedBeans();
         IBeverage ToBeverage();
     }
 
-    public class FluentEspresso : IBeverage
+    public interface IFluentEspresso
     {
-        public string CupType => " ";
+        IFluentEspresso AddHotWater(int percent);
+        IFluentEspresso AddMilk();
+        IFluentEspresso AddFoamMilk();
+        IFluentEspresso AddCoffeeBeans(Beans beans);
+        IFluentEspresso AddGrindedBeans();
+
+    }
+
+
+    public class FluentEspresso : IFluentEspresso
+    {
+        public string CupType => "Medium";
 
         public List<string> Ingredients { get; }
 
@@ -51,7 +58,7 @@ namespace BaristaApi
             Ingredients = new List<string>();
         }
 
-        public IBeverage AddCoffeeBeans(Beans beans)
+        public IFluentEspresso AddCoffeeBeans(Beans beans)
         {
 
             Ingredients.Add("Coffee Beans Added!");
@@ -59,36 +66,48 @@ namespace BaristaApi
             return this;
         }
 
-        public IBeverage AddFoamMilk()
+        public IFluentEspresso AddFoamMilk()
         {
             Ingredients.Add("Milk Foam Added!");
 
             return this;
         }
 
-        public IBeverage AddGrindedBeans()
+        public IFluentEspresso AddGrindedBeans()
         {
             Ingredients.Add("Grinded Beans Added!");
 
             return this;
         }
 
-        public IBeverage AddHotWater(int percent)
+        public IFluentEspresso AddHotWater(int percent)
         {
             Ingredients.Add("Hot Water Added!");
 
             return this;
         }
 
-        public IBeverage AddMilk()
+        public IFluentEspresso AddMilk()
         {
             Ingredients.Add("Milk Added!");
 
             return this;
         }
 
-        public IBeverage ToBeverage()
+        public IFluentEspresso ToBeverage(IBeverage beverage)
         {
+
+            if (beverage.Ingredients.Count == Ingredients.Count)
+            {
+                foreach (var ingredient in beverage.Ingredients)
+                {
+                    if (Ingredients.Contains(ingredient))
+                    {
+
+                    }
+                }
+            }
+
             if (Ingredients.Contains("Coffee Beans Added!") &&
                 Ingredients.Contains("Milk Added!") &&
                 Ingredients.Contains("Milk Foam Added!"))
@@ -100,6 +119,28 @@ namespace BaristaApi
                 Console.WriteLine("Your beverage is Espresso");
             }
 
+            return this;
+        }
+    }
+
+
+    public class Americano : IBeverage
+    {
+        public List<string> Ingredients { get; }
+
+        public Americano()
+        {
+            Ingredients = new List<string>() { "Water", "Epresso" };
+        }
+
+        public string CupType => throw new NotImplementedException();
+
+        public IBeverage ToBeverage()
+        {
+            if (Ingredients.Contains("Water"))
+            {
+                Console.WriteLine("Your beverage is Americano");
+            }
             return this;
         }
     }
