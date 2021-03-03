@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace The_barista
 {
@@ -7,41 +8,42 @@ namespace The_barista
     {
         public static void Main()
         {
-            IFluentEspresso espresso = new FluentEspresso()
-                .AddHotWater(20)
-                .AddGrindedBeans()
+            //IFluentEspresso espresso = new FluentEspresso()
+            //    .AddHotWater(20)
+            //    .AddGrindedBeans()
+            //    .AddCoffeeBeans(new Beans(4, "Arabica"))
+            //    .AddMilk();
+
+            //IFluentEspresso cappuccino = new FluentEspresso()
+            //    .AddCoffeeBeans(new Beans(4, "Arabica"))
+            //    .AddMilk()
+            //    .AddMilkFoam();
+
+
+            IBeverage macchiato = new FluentEspresso()
                 .AddCoffeeBeans(new Beans(4, "Arabica"))
-                .AddMilk();
+                .ToBeverage();
 
-            IFluentEspresso cappuccino = new FluentEspresso()
-                .AddCoffeeBeans(new Beans(4, "Arabica"))
-                .AddMilk()
-                .AddFoamMilk();
-
-            IBeverage americano = new Americano().ToBeverage();
-
-
-            //foreach (var ingredient in espresso.Ingredients)
-            //{
-            //    Console.WriteLine(ingredient);
-            //}
+            Console.WriteLine();
         }
     }
 
     public interface IBeverage
     {
+        public string Name { get; }
         List<string> Ingredients { get; }
         string CupType { get; }
-        IBeverage ToBeverage();
+
     }
 
     public interface IFluentEspresso
     {
         IFluentEspresso AddHotWater(int percent);
         IFluentEspresso AddMilk();
-        IFluentEspresso AddFoamMilk();
+        IFluentEspresso AddMilkFoam();
         IFluentEspresso AddCoffeeBeans(Beans beans);
         IFluentEspresso AddGrindedBeans();
+        IBeverage ToBeverage();
 
     }
 
@@ -61,88 +63,169 @@ namespace The_barista
         public IFluentEspresso AddCoffeeBeans(Beans beans)
         {
 
-            Ingredients.Add("Coffee Beans Added!");
+            Ingredients.Add("Coffee Beans");
 
             return this;
         }
 
-        public IFluentEspresso AddFoamMilk()
+        public IFluentEspresso AddMilkFoam()
         {
-            Ingredients.Add("Milk Foam Added!");
+            Ingredients.Add("Milk Foam");
 
             return this;
         }
 
         public IFluentEspresso AddGrindedBeans()
         {
-            Ingredients.Add("Grinded Beans Added!");
+            Ingredients.Add("Grinded Beans");
 
             return this;
         }
 
         public IFluentEspresso AddHotWater(int percent)
         {
-            Ingredients.Add("Hot Water Added!");
+            Ingredients.Add("Water");
 
             return this;
         }
 
         public IFluentEspresso AddMilk()
         {
-            Ingredients.Add("Milk Added!");
+            Ingredients.Add("Milk");
 
             return this;
         }
 
-        public IFluentEspresso ToBeverage(IBeverage beverage)
+        public IBeverage ToBeverage()
         {
-
-            if (beverage.Ingredients.Count == Ingredients.Count)
+            var drinks = new List<IBeverage>()
             {
-                foreach (var ingredient in beverage.Ingredients)
-                {
-                    if (Ingredients.Contains(ingredient))
-                    {
+                new Americano(),
+                new Latte(),
+                new Cappucino(),
+                new Macchiato(),
+                new Mocha(),
+                new Espresso()
+            };
 
-                    }
-                }
-            }
+            // Ser till så att drinkens lista med ingredienser matchar med de angivna listans ingredienser.
+            var desiredDrink = drinks.FirstOrDefault(d => Enumerable.SequenceEqual(d.Ingredients.OrderBy(i => i), this.Ingredients.OrderBy(i => i)));
 
-            if (Ingredients.Contains("Coffee Beans Added!") &&
-                Ingredients.Contains("Milk Added!") &&
-                Ingredients.Contains("Milk Foam Added!"))
-            {
-                Console.WriteLine("Your beverage is Cappuccino");
-            }
-            else if (Ingredients.Contains("Milk Added!") && Ingredients.Contains("Coffee Beans Added!"))
-            {
-                Console.WriteLine("Your beverage is Espresso");
-            }
+            // Tänk ifall drinken är null eller har andra ingredienser som vi inte har en klass av som ex. Espresso, Latte, ...? 
+            Console.WriteLine(desiredDrink.Name);
+            return desiredDrink;
 
-            return this;
         }
     }
 
-
     public class Americano : IBeverage
     {
-        public List<string> Ingredients { get; }
+        public List<string> Ingredients { get; private set; }
+        public string Name { get; private set; }
+
+        private string _name = "Americano";
 
         public Americano()
         {
-            Ingredients = new List<string>() { "Water", "Epresso" };
+            Name = _name;
+            Ingredients = new List<string>() { "Water", "Coffee Beans" };
+        }
+
+        public string CupType => throw new NotImplementedException();
+    }
+
+
+    public class Latte : IBeverage
+    {
+        public List<string> Ingredients { get; private set; }
+        public string Name { get; private set; }
+
+        private string _name = "Latte";
+
+        public Latte()
+        {
+            Name = _name;
+            Ingredients = new List<string>() { "Milk", "Coffee Beans" };
+        }
+
+        public string CupType => throw new NotImplementedException();
+    }
+
+    public class Cappucino : IBeverage
+    {
+        public List<string> Ingredients { get; private set; }
+        public string Name { get; private set; }
+
+        private string _name = "Cappucino";
+
+        public Cappucino()
+        {
+            Name = _name;
+            Ingredients = new List<string>() { "Milk", "Coffee Beans", "Milk Foam" };
+        }
+
+        public string CupType => throw new NotImplementedException();
+    }
+
+
+    public class Macchiato : IBeverage
+    {
+        public List<string> Ingredients { get; private set; }
+        public string Name { get; private set; }
+
+        private string _name = "Macchiato";
+
+
+        public Macchiato()
+        {
+            Name = _name;
+            Ingredients = new List<string>() { "Coffee Beans", "Milk Foam" };
+        }
+
+        public string CupType => throw new NotImplementedException();
+    }
+
+
+    // Name saknas för vi måste lägga till choloate Syrup i IFluentEspresso...
+    public class Mocha : IBeverage
+    {
+        public List<string> Ingredients { get; private set; }
+        public string Name { get; private set; }
+
+        public Mocha()
+        {
+            Ingredients = new List<string>() { "Coffee Beans", "Chocolate Syrup", "Milk Foam" };
         }
 
         public string CupType => throw new NotImplementedException();
 
-        public IBeverage ToBeverage()
+    }
+
+    public class Espresso : IBeverage
+    {
+        public List<string> Ingredients { get; private set; }
+        public string Name { get; private set; }
+
+        private string _name = "Espresso";
+
+        public Espresso()
         {
-            if (Ingredients.Contains("Water"))
-            {
-                Console.WriteLine("Your beverage is Americano");
-            }
-            return this;
+            Name = _name;
+            Ingredients = new List<string>() { "Coffee Beans" };
         }
+
+        public string CupType => throw new NotImplementedException();
+
+    }
+
+
+    public class Other : IBeverage
+    {
+        public List<string> Ingredients => throw new NotImplementedException();
+
+        public string CupType => throw new NotImplementedException();
+
+        public string Name => throw new NotImplementedException();
     }
 
     public class Beans
